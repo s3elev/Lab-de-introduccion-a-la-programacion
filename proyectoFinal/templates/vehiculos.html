@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <div class="card p-3 border-0 shadow-sm mb-3">
+            <h5 class="fw-bold text-primary mb-3">Asignar Automóvil</h5>
+            <form method="POST">
+                <div class="mb-2"><label class="small text-muted fw-bold">Asignar Propietario</label><select class="form-select" name="id_cliente" required><option value="">Seleccione...</option>{% for c in clientes %}<option value="{{ c[0] }}">{{ c[1] }}</option>{% endfor %}</select></div>
+                <div class="mb-2"><label class="small text-muted fw-bold">Placa / Matrícula</label><input type="text" class="form-control" name="placa" placeholder="Ej: ZAC-123" required></div>
+                <div class="mb-2"><label class="small text-muted fw-bold">Marca</label><input type="text" class="form-control" name="marca" placeholder="Ej: Nissan" required></div>
+                <div class="mb-3"><label class="small text-muted fw-bold">Modelo y Año</label><input type="text" class="form-control" name="modelo" placeholder="Ej: Sentra 2017" required></div>
+                <button type="submit" class="btn btn-success w-100 fw-bold">Guardar Automóvil</button>
+            </form>
+        </div>
+        <div class="card p-3 border-0 shadow-sm bg-light">
+            <form method="GET"><input type="text" class="form-control mb-2 form-control-sm" name="buscar" placeholder="Buscar Placa o Dueño..." value="{{ buscar }}"><button type="submit" class="btn btn-dark w-100 btn-sm fw-bold">Filtrar Catálogo</button></form>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <table class="table align-middle mb-0 table-striped">
+                <thead class="table-dark"><tr><th>Placa</th><th>Marca / Modelo</th><th>Dueño Asignado</th><th class="text-center">Modificaciones</th></tr></thead>
+                <tbody>
+                    {% for v in vehiculos %}
+                    <tr>
+                        <td><span class="badge bg-dark font-monospace fs-6">{{ v[1] }}</span></td><td>{{ v[2] }} {{ v[3] }}</td><td>{{ v[4] }}</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-outline-warning me-1" data-bs-toggle="modal" data-bs-target="#editModalV{{ v[0] }}"><i class="bi bi-pencil-square"></i></button>
+                            <a href="{{ url_for('borrar_vehiculo', id=v[0]) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Baja total de unidad?')"><i class="bi bi-trash-fill"></i></a>
+                        </td>
+                    </tr>
+                    <div class="modal fade" id="editModalV{{ v[0] }}" tabindex="-1"><div class="modal-dialog modal-content"><div class="modal-header bg-dark text-white"><h5>Modificar Registros de Coche</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+                        <form action="{{ url_for('editar_vehiculo', id=v[0]) }}" method="POST"><div class="modal-body">
+                            <div class="mb-2"><label class="form-label small">Placa</label><input type="text" class="form-control" name="placa" value="{{ v[1] }}" required></div>
+                            <div class="mb-2"><label class="form-label small">Marca</label><input type="text" class="form-control" name="marca" value="{{ v[2] }}" required></div>
+                            <div class="mb-2"><label class="form-label small">Modelo</label><input type="text" class="form-control" name="modelo" value="{{ v[3] }}" required></div>
+                            <div class="mb-2"><label class="form-label small">Cambiar Dueño</label><select class="form-select" name="id_cliente">{% for c in clientes %}<option value="{{ c[0] }}" {% if c[0] == v[5] %}selected{% endif %}>{{ c[1] }}</option>{% endfor %}</select></div>
+                        </div><div class="modal-footer"><button type="submit" class="btn btn-primary fw-bold">Actualizar</button></div></form></div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

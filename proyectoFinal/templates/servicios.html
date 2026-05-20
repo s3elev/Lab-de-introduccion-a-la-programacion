@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <div class="card p-3 border-0 shadow-sm mb-3">
+            <h5 class="fw-bold text-primary mb-3">Abrir Órden de Reparación</h5>
+            <form action="{{ url_for('agregar_servicio') }}" method="POST">
+                <div class="mb-2"><label class="small text-muted fw-bold">Coche Asociado</label><select class="form-select" name="id_vehiculo" required><option value="">Seleccione...</option>{% for v in vehiculos %}<option value="{{ v[0] }}">{{ v[1] }} - {{ v[2] }}</option>{% endfor %}</select></div>
+                <div class="mb-2"><label class="small text-muted fw-bold">Descripción de Falla</label><textarea class="form-control" name="falla" rows="2" placeholder="Falla reportada..." required></textarea></div>
+                <div class="mb-2"><label class="small text-muted fw-bold">Diagnóstico Técnico</label><textarea class="form-control" name="diagnostico" rows="2" placeholder="Notas mecánicas..." required></textarea></div>
+                <div class="mb-2"><label class="small text-muted fw-bold">Presupuesto ($)</label><input type="number" step="0.01" class="form-control" name="costo" required></div>
+                <div class="mb-3"><label class="small text-muted fw-bold">Estado Operativo</label><select class="form-select" name="estado"><option value="Pendiente">Pendiente</option><option value="En Reparacion">En Reparación</option><option value="Terminado">Terminado</option></select></div>
+                <button type="submit" class="btn btn-success w-100 fw-bold">Registrar Órden</button>
+            </form>
+        </div>
+        <div class="card p-3 border-0 shadow-sm bg-light">
+            <form method="GET" class="row g-1">
+                <div class="col-6"><input type="text" class="form-control form-control-sm" name="placa" placeholder="Filtrar Placa..." value="{{ buscar_placa }}"></div>
+                <div class="col-6"><select class="form-select form-select-sm" name="estado"><option value="">Estado...</option><option value="Pendiente">Pendiente</option><option value="En Reparacion">En Reparación</option><option value="Terminado">Terminado</option></select></div>
+                <button type="submit" class="btn btn-sm btn-dark w-100 mt-2 fw-bold">Buscar Órdenes</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm bg-white">
+            <table class="table align-middle mb-0" style="font-size:0.85rem;">
+                <thead class="table-dark"><tr><th>Vehículo / Cliente</th><th>Reporte Mecánico</th><th>Total</th><th>Estado</th><th class="text-center">Operaciones de Caja</th></tr></thead>
+                <tbody>
+                    {% for s in servicios %}
+                    <tr>
+                        <td><strong>{{ s[1] }}</strong><br><span class="badge bg-secondary font-monospace">{{ s[2] }}</span></td>
+                        <td><span class="text-danger fw-bold">Falla:</span> {{ s[4] }}<br><span class="text-success fw-bold">Diag:</span> {{ s[5] }}</td>
+                        <td class="fw-bold">${{ "{:,.2f}".format(s[6]) }}</td>
+                        <td>
+                            {% if s[7] == 'Pendiente' %}<span class="badge bg-warning text-dark">Pendiente</span>
+                            {% elif s[7] == 'En Reparacion' %}<span class="badge bg-info">En Reparación</span>
+                            {% else %}<span class="badge bg-success">Terminado</span>{% endif %}
+                        </td>
+                        <td class="text-center">
+                            <a href="{{ url_for('liquidar_servicio', id=s[0]) }}" class="btn btn-sm btn-success fw-bold me-1" onclick="return confirm('¿Proceder al cobro de caja? Se emitirá el ticket y se procesará el borrado en cascada inteligente.')"><i class="bi bi-cash-coin"></i> Cobrar</a>
+                            <button class="btn btn-sm btn-outline-warning me-1" data-bs-toggle="modal" data-bs-target="#editModalS{{ s[0] }}"><i class="bi bi-pencil-square"></i></button>
+                            <a href="{{ url_for('borrar_servicio', id=s[0]) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Desea borrar esta orden activa sin registrar pago?')"><i class="bi bi-trash"></i></a>
+                        </td>
+                    </tr>
+                    <div class="modal fade" id="editModalS{{ s[0] }}" tabindex="-1"><div class="modal-dialog modal-content"><div class="modal-header bg-dark text-white"><h5>Modificar Órden #{{ s[0] }}</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+                        <form action="{{ url_for('editar_servicio', id=s[0]) }}" method="POST"><div class="modal-body">
+                            <div class="mb-2"><label class="small text-muted">Descripción de Falla</label><textarea class="form-control" name="falla" required>{{ s[4] }}</textarea></div>
+                            <div class="mb-2"><label class="small text-muted">Diagnóstico</label><textarea class="form-control" name="diagnostico" required>{{ s[5] }}</textarea></div>
+                            <div class="mb-2"><label class="small text-muted">Costo Financiero ($)</label><input type="number" step="0.01" class="form-control" name="costo" value="{{ s[6] }}" required></div>
+                            <div class="mb-2"><label class="small text-muted">Estado</label><select class="form-select" name="estado"><option value="Pendiente" {% if s[7] == 'Pendiente' %}selected{% endif %}>Pendiente</option><option value="En Reparacion" {% if s[7] == 'En Reparacion' %}selected{% endif %}>En Reparación</option><option value="Terminado" {% if s[7] == 'Terminado' %}selected{% endif %}>Terminado</option></select></div>
+                        </div><div class="modal-footer"><button type="submit" class="btn btn-primary fw-bold">Actualizar Órden</button></div></form></div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

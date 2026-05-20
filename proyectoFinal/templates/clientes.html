@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <div class="card p-3 border-0 shadow-sm mb-3">
+            <h5 class="fw-bold text-primary mb-3">Registrar Cliente</h5>
+            <form method="POST">
+                <div class="mb-2"><label class="small text-muted fw-bold">Nombre Completo</label><input type="text" class="form-control" name="nombre" required placeholder="Ej: Juan Pérez"></div>
+                <div class="mb-2"><label class="small text-muted fw-bold">Teléfono de Contacto</label><input type="text" class="form-control" name="telefono" required placeholder="Ej: 4921234567"></div>
+                <div class="mb-3"><label class="small text-muted fw-bold">Correo Electrónico</label><input type="email" class="form-control" name="correo" placeholder="opcional@correo.com"></div>
+                <button type="submit" class="btn btn-success w-100 fw-bold">Registrar</button>
+            </form>
+        </div>
+        <div class="card p-3 border-0 shadow-sm bg-light">
+            <form method="GET">
+                <label class="small fw-bold text-secondary mb-1">BUSCADOR FILTRADO</label>
+                <input type="text" class="form-control mb-2 form-control-sm" name="buscar" placeholder="Nombre o Teléfono..." value="{{ buscar }}">
+                <button type="submit" class="btn btn-dark w-100 btn-sm fw-bold">Filtrar Base de Datos</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm bg-white">
+            <table class="table align-middle mb-0 table-striped">
+                <thead class="table-dark"><tr><th>ID</th><th>Nombre</th><th>Teléfono</th><th>Correo</th><th class="text-center">Modificaciones</th></tr></thead>
+                <tbody>
+                    {% for c in clientes %}
+                    <tr>
+                        <td>{{ c[0] }}</td><td><strong>{{ c[1] }}</strong></td><td>{{ c[2] }}</td><td>{{ c[3] }}</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-outline-warning me-1" data-bs-toggle="modal" data-bs-target="#editModalC{{ c[0] }}"><i class="bi bi-pencil-square"></i></button>
+                            <a href="{{ url_for('borrar_cliente', id=c[0]) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Dar de baja al cliente?')"><i class="bi bi-trash-fill"></i></a>
+                        </td>
+                    </tr>
+                    <div class="modal fade" id="editModalC{{ c[0] }}" tabindex="-1"><div class="modal-dialog modal-content"><div class="modal-header bg-dark text-white"><h5 class="modal-title">Actualizar Cliente #{{ c[0] }}</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+                        <form action="{{ url_for('editar_cliente', id=c[0]) }}" method="POST"><div class="modal-body">
+                            <div class="mb-2"><label class="form-label small">Nombre</label><input type="text" class="form-control" name="nombre" value="{{ c[1] }}" required></div>
+                            <div class="mb-2"><label class="form-label small">Teléfono</label><input type="text" class="form-control" name="telefono" value="{{ c[2] }}" required></div>
+                            <div class="mb-2"><label class="form-label small">Correo</label><input type="text" class="form-control" name="correo" value="{{ c[3] }}"></div>
+                        </div><div class="modal-footer"><button type="submit" class="btn btn-primary fw-bold">Guardar Cambios</button></div></form></div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

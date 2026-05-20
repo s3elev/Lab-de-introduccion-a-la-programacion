@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center pb-2 mb-4 border-bottom">
+    <h2 class="h3 m-0">Panel Resumen</h2>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-2"><div class="card p-3 border-0 shadow-sm bg-white"><h6>Clientes</h6><h3>{{ clientes }}</h3></div></div>
+    <div class="col-md-2"><div class="card p-3 border-0 shadow-sm bg-white"><h6>En Taller</h6><h3>{{ vehiculos }}</h3></div></div>
+    <div class="col-md-2"><div class="card p-3 border-0 shadow-sm bg-white"><h6>Pendientes</h6><h3>{{ pendientes }}</h3></div></div>
+    <div class="col-md-2"><div class="card p-3 border-0 shadow-sm bg-success text-white"><h6>Caja Hoy</h6><h3>${{ "{:,.2f}".format(ganancias_hoy) }}</h3></div></div>
+    <div class="col-md-2"><div class="card p-3 border-0 shadow-sm bg-info text-white"><h6>Mes Actual</h6><h3>${{ "{:,.2f}".format(ganancias_mes) }}</h3></div></div>
+    <div class="col-md-2"><div class="card p-3 border-0 shadow-sm bg-primary text-white"><h6>Año Activo</h6><h3>${{ "{:,.2f}".format(ganancias_anio) }}</h3></div></div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white py-3 fw-bold text-secondary">Últimos Vehículos en Espera / Servicio</div>
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr><th>ID</th><th>Cliente</th><th>Vehículo</th><th>Falla Percibida</th><th>Monto</th><th>Estado</th></tr>
+            </thead>
+            <tbody>
+                {% for s in servicios %}
+                <tr>
+                    <td>#{{ s[0] }}</td>
+                    <td>{{ s[1] }}</td>
+                    <td>{{ s[2] }} <span class="badge bg-dark font-monospace">{{ s[3] }}</span></td>
+                    <td>{{ s[4] }}</td>
+                    <td>${{ "{:,.2f}".format(s[5]) }}</td>
+                    <td><span class="badge bg-warning text-dark">{{ s[6] }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card p-4 border-0 shadow-sm bg-white">
+            <h5 class="mb-3 font-weight-bold text-secondary">Rendimiento Financiero del Taller</h5>
+            <div style="position: relative; height:320px; width:100%">
+                <canvas id="graficaGanancias"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Inicialización y configuración de la gráfica inyectando las variables de Flask
+    const ctx = document.getElementById('graficaGanancias').getContext('2d');
+    const graficaGanancias = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Hoy', 'Este Mes', 'Este Año'],
+            datasets: [{
+                label: 'Ingresos Totales ($)',
+                // Inyección segura de las variables dinámicas de Python/Jinja2
+                data: [{{ ganancias_hoy }}, {{ ganancias_mes }}, {{ ganancias_anio }}],
+                backgroundColor: [
+                    'rgba(25, 135, 84, 0.75)',  // Verde traslúcido para Hoy
+                    'rgba(13, 202, 240, 0.75)',  // Azul claro para Mes
+                    'rgba(13, 110, 253, 0.75)'   // Azul fuerte para Año
+                ],
+                borderColor: [
+                    'rgb(25, 135, 84)',
+                    'rgb(13, 202, 240)',
+                    'rgb(13, 110, 253)'
+                ],
+                borderWidth: 1.5,
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        // Agrega formato de moneda legible en el eje Y
+                        callback: function(value) { return '$' + value.toLocaleString(); }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false // Oculta la leyenda superior automática
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

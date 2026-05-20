@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center pb-2 mb-4 border-bottom">
+    <h2 class="h3 m-0">Historial de Auditoría Financiera</h2>
+</div>
+
+<div class="card border-0 shadow-sm mb-4 bg-white p-3">
+    <form method="GET" action="{{ url_for('ver_historial') }}" class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label fw-bold text-secondary">Cliente:</label>
+            <input type="text" name="cliente" class="form-control" placeholder="Nombre del cliente..." value="{{ buscar_cliente }}">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label fw-bold text-secondary">Placa:</label>
+            <input type="text" name="placa" class="form-control" placeholder="Matrícula..." value="{{ buscar_placa }}">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label fw-bold text-secondary">Desde:</label>
+            <input type="date" name="fecha_inicio" class="form-control" value="{{ fecha_inicio }}">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label fw-bold text-secondary">Hasta:</label>
+            <input type="date" name="fecha_fin" class="form-control" value="{{ fecha_fin }}">
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100 fw-bold">🔎 Filtrar</button>
+        </div>
+    </form>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>ID Pago</th>
+                    <th>Cliente</th>
+                    <th>Vehículo [Placa]</th>
+                    <th>Falla Reparada</th>
+                    <th>Total Cobrado</th>
+                    <th>Fecha Pago</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for h in historial %}
+                <tr>
+                    <td class="fw-bold">#{{ h[0] }}</td>
+                    <td>{{ h[2] }}<br><small class="text-muted">{{ h[3] }}</small></td>
+                    <td>{{ h[4] }} <span class="badge bg-dark font-monospace">{{ h[5] }}</span></td>
+                    <td><small>{{ h[6] }}</small></td>
+                    <td class="text-success fw-bold">${{ "{:,.2f}".format(h[8]) }}</td>
+                    <td><small class="text-muted">{{ h[10] }}</small></td>
+                    <td>
+                        <a href="{{ url_for('eliminar_historial', id=h[0]) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Seguro que deseas remover este registro de la auditoría?')">Eliminar</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">No se encontraron registros de cobro con los filtros seleccionados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4" style="max-width: 650px;">
+    <div class="card shadow-sm border-0 p-4 bg-white" id="ticket-imprimible">
+        <div class="text-center border-bottom pb-3 mb-3">
+            <h2 class="fw-bold text-primary mb-1">⚙️ AutoFix</h2>
+            <p class="text-muted small mb-0">Comprobante Oficial de Pago e Historial de Servicio</p>
+            <p class="text-muted small">Fecha de Emisión: {{ fecha_pago }}</p>
+        </div>
+
+        {% if nota %}
+        <div class="alert alert-info py-2 small mb-3 border-0 shadow-sm">
+            <strong>Estado del Sistema:</strong> {{ nota }}
+        </div>
+        {% endif %}
+
+        <h6 class="text-secondary fw-bold border-bottom pb-1">DATOS DEL CLIENTE</h6>
+        <div class="row mb-3 small">
+            <div class="col-6"><strong>Nombre:</strong> {{ ticket[1] }}</div>
+            <div class="col-6"><strong>Teléfono:</strong> {{ ticket[2] }}</div>
+        </div>
+
+        <h6 class="text-secondary fw-bold border-bottom pb-1">INFORMACIÓN DEL VEHÍCULO</h6>
+        <div class="row mb-3 small">
+            <div class="col-6"><strong>Unidad:</strong> {{ ticket[3] }}</div>
+            <div class="col-6"><strong>Placa / Matrícula:</strong> <span class="badge bg-dark font-monospace">{{ ticket[4] }}</span></div>
+        </div>
+
+        <h6 class="text-secondary fw-bold border-bottom pb-1">DETALLE DE LA REPARACIÓN</h6>
+        <div class="mb-3 small">
+            <div class="mb-1"><strong>Falla Reportada:</strong> {{ ticket[5] }}</div>
+            <div><strong>Diagnóstico Técnico Aplicado:</strong> {{ ticket[6] }}</div>
+        </div>
+
+        <div class="bg-light p-3 rounded d-flex justify-content-between align-items-center mb-4 border shadow-sm">
+            <span class="h5 m-0 fw-bold text-secondary">TOTAL LIQUIDADO:</span>
+            <span class="h4 m-0 fw-bold text-success">${{ "{:,.2f}".format(ticket[7]) }}</span>
+        </div>
+
+        <div class="text-center mt-3 border-top pt-3 text-muted small">
+            <p class="mb-1">¡Gracias por su preferencia!</p>
+            <p class="mb-0">Conserve esta ficha para aclaraciones o validación de garantía.</p>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2 mt-4 justify-content-center">
+        <button onclick="window.print();" class="btn btn-success fw-bold px-4">🖨️ Imprimir Ficha de Pago</button>
+        <a href="{{ url_for('index') }}" class="btn btn-secondary px-4">Volver al Panel</a>
+    </div>
+</div>
+
+<style>
+@media print {
+    body * { visual-visibility: hidden; }
+    .navbar, .btn, .sidebar, footer { display: none !important; }
+    #ticket-imprimible, #ticket-imprimible * { visibility: visible; }
+    #ticket-imprimible { position: absolute; left: 0; top: 0; width: 100%; border: none !important; shadow: none !important; }
+}
+</style>
+{% endblock %}
